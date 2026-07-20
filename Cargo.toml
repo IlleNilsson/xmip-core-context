@@ -1,0 +1,7 @@
+[package]
+name = "xmip-context"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/IlleNilsson/xmip-context"
+description = "Typed message context values for Xmip."
