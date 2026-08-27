@@ -11,7 +11,7 @@
 
 use std::fmt;
 use xmip_core::PartyId;
-use xmip_party::{IdentityClass, Layer, Mechanism};
+use xmip_core::{Established, IdentityClass, Layer, Mechanism};
 
 /// What a gate concluded about one presented identity.
 ///
@@ -37,6 +37,13 @@ pub struct AuthenticatedIdentity {
     pub mechanism: Mechanism,
     /// The value presented — `CN=partner-x.example`, `ISA06=PARTNERX`.
     pub value: String,
+    /// How the first gate came by it: passed, inferred or detected.
+    ///
+    /// Survives to here because it is what an operator asks for when a Journey
+    /// is disputed. "Proven" answers whether the claim held; this answers why
+    /// there was a claim at all, and a record with only the first cannot tell a
+    /// forged certificate from a folder anyone could write to.
+    pub established: Established,
     /// What the gate concluded.
     pub verified: Verified,
     /// The Party it resolved to, where the registry knew one.
@@ -48,18 +55,58 @@ pub struct AuthenticatedIdentity {
     /// Free-form detail the gate wants on the record — issuer, thumbprint,
     /// token id, source address. Audit reads this; nothing branches on it.
     pub evidence: Vec<(String, String)>,
+
+    /// When the gate concluded, in unix nanoseconds. Zero means unrecorded.
+    ///
+    /// **A Journey may take days.** A Process waits for a human, and by the
+    /// time it resumes the certificate may have expired, the token lapsed, the
+    /// Party been revoked. What is recorded here is what was true *then*, and
+    /// it is never a licence to act *now* — which is exactly why the time has
+    /// to travel with it.
+    ///
+    /// Zero is treated as never proven by anything that judges freshness. An
+    /// identity that cannot say when it was verified is not fresh.
+    pub authenticated_at: i128,
 }
 
 impl AuthenticatedIdentity {
     #[must_use]
-    pub fn new(mechanism: Mechanism, value: impl Into<String>, verified: Verified) -> Self {
+    pub fn new(
+        mechanism: Mechanism,
+        value: impl Into<String>,
+        established: Established,
+        verified: Verified,
+    ) -> Self {
         Self {
             mechanism,
             value: value.into(),
+            established,
             verified,
             party_id: None,
             evidence: Vec::new(),
+            authenticated_at: 0,
         }
+    }
+
+    /// Record when the gate concluded. `Clock::unix_timestamp_nanos`.
+    #[must_use]
+    pub const fn at(mut self, unix_nanos: i128) -> Self {
+        self.authenticated_at = unix_nanos;
+        self
+    }
+
+    /// How long ago this was proven, or `None` if it never said.
+    ///
+    /// `None` and "a long time ago" are different answers and a caller has to
+    /// be able to tell them apart — one is a gap in the record, the other is a
+    /// stale credential.
+    #[must_use]
+    pub const fn age_at(&self, now: i128) -> Option<i128> {
+        if self.authenticated_at == 0 {
+            return None;
+        }
+
+        Some(now - self.authenticated_at)
     }
 
     #[must_use]
@@ -247,12 +294,13 @@ impl fmt::Display for IdentityFacts {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xmip_party::mechanism;
+    use xmip_core::mechanism;
 
     fn tls(party: Option<PartyId>) -> AuthenticatedIdentity {
         let identity = AuthenticatedIdentity::new(
             mechanism::mutual_tls(),
             "CN=van.example",
+            Established::Passed,
             Verified::Proven,
         );
 
@@ -266,6 +314,7 @@ mod tests {
         let identity = AuthenticatedIdentity::new(
             mechanism::edi_x12_interchange(),
             "ISA06=PARTNERX",
+            Established::Detected,
             Verified::Claimed,
         );
 
@@ -350,7 +399,12 @@ mod tests {
     fn anonymous_still_produces_a_transport_identity() {
         let facts = IdentityFacts::evaluate(
             Alignment::None,
-            AuthenticatedIdentity::new(mechanism::anonymous(), "", Verified::Proven),
+            AuthenticatedIdentity::new(
+                mechanism::anonymous(),
+                "",
+                Established::Inferred,
+                Verified::Proven,
+            ),
             None,
         );
 
