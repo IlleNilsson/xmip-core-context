@@ -8,3 +8,9 @@ edition = "2024"
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/IlleNilsson/xmip-core-context"
 description = "Typed message context values for Xmip."
+
+[dependencies]
+# PartyId, and the Mechanism a gate concluded against. Direction is
+# context -> party -> core, and party depends on neither of these.
+xmip-core = { git = "https://github.com/IlleNilsson/xmip-core", branch = "main" }
+xmip-party = { package = "xmip-core-party", git = "https://github.com/IlleNilsson/xmip-core-party", branch = "main" }

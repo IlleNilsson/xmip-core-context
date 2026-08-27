@@ -1,5 +1,17 @@
 #![forbid(unsafe_code)]
 
+//! Message Context: what accumulates as a Message is handled.
+//!
+//! Content is immutable and context accumulates. Promoted properties land here
+//! as text, and so does the identity a Message arrived with — both layers of
+//! it, per ADR-0019 clause 6.
+
+pub mod identity;
+
+pub use identity::{
+    Alignment, AlignmentResult, AuthenticatedIdentity, IdentityFacts, OnMisalignment, Verified,
+};
+
 use std::collections::BTreeMap;
 
 #[derive(Clone, Debug, PartialEq)]
