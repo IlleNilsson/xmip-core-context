@@ -6,9 +6,9 @@
 //! as text, and so does the identity a Message arrived with — both layers of
 //! it, per ADR-0019 clause 6.
 
-pub mod identity;
+pub mod facts;
 
-pub use identity::{
+pub use facts::{
     Alignment, AlignmentResult, AuthenticatedIdentity, IdentityFacts, OnMisalignment, Verified,
 };
 
