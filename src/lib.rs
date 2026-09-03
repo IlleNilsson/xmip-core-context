@@ -30,7 +30,9 @@ pub struct MessageContext {
 }
 
 impl MessageContext {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn get(&self, key: &str) -> Option<&ContextValue> {
         self.values.get(key)
@@ -56,7 +58,8 @@ mod tests {
 
     #[test]
     fn context_is_built_immutably() {
-        let context = MessageContext::new().with_value("source.uri", ContextValue::Text("file:///in/a.xml".into()));
+        let context = MessageContext::new()
+            .with_value("source.uri", ContextValue::Text("file:///in/a.xml".into()));
         assert!(context.contains_key("source.uri"));
     }
 }

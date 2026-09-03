@@ -234,7 +234,9 @@ impl IdentityFacts {
             // stated here rather than discovered.
             (Alignment::Relaxed | Alignment::Strict, Some(message)) => {
                 match (transport.party_id, message.party_id) {
-                    (Some(from_transport), Some(from_message)) if from_transport == from_message => {
+                    (Some(from_transport), Some(from_message))
+                        if from_transport == from_message =>
+                    {
                         AlignmentResult::Aligned
                     }
                     // One side resolved to nothing. There is no Party to agree
@@ -389,8 +391,11 @@ mod tests {
     fn an_unresolved_party_cannot_align() {
         // Nothing to agree on. The policy asked for one Party across both
         // layers and one layer named nobody.
-        let facts =
-            IdentityFacts::evaluate(Alignment::Strict, tls(Some(PartyId::new(1))), Some(isa06(None)));
+        let facts = IdentityFacts::evaluate(
+            Alignment::Strict,
+            tls(Some(PartyId::new(1))),
+            Some(isa06(None)),
+        );
 
         assert_eq!(facts.alignment, AlignmentResult::Misaligned);
     }
