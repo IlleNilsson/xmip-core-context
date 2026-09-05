@@ -10,8 +10,8 @@
 //! both.
 
 use std::fmt;
-use xmip_core::PartyId;
-use xmip_core::{Established, IdentityClass, Layer, Mechanism};
+use xcore::PartyId;
+use xcore::{Established, IdentityClass, Layer, Mechanism};
 
 /// What a gate concluded about one presented identity.
 ///
@@ -296,7 +296,7 @@ impl fmt::Display for IdentityFacts {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xmip_core::mechanism;
+    use xcore::mechanism;
 
     fn tls(party: Option<PartyId>) -> AuthenticatedIdentity {
         let identity = AuthenticatedIdentity::new(

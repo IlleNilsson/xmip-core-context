@@ -12,4 +12,4 @@ description = "Typed message context values for Xmip."
 [dependencies]
 # PartyId, and the Mechanism a gate concluded against. Direction is
 # context -> party -> core, and party depends on neither of these.
-xmip-core = { git = "https://github.com/IlleNilsson/xmip-core", branch = "main" }
+xcore = { package = "xmip-core", git = "https://github.com/IlleNilsson/xmip-core", branch = "main" }
