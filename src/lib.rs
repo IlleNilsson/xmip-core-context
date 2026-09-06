@@ -14,15 +14,11 @@ pub use facts::{
 
 use std::collections::BTreeMap;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum ContextValue {
-    Null,
-    Bool(bool),
-    Integer(i64),
-    Decimal(f64),
-    Text(String),
-    Binary(Vec<u8>),
-}
+/// A promoted property's value is one scalar, the shared `ScalarValue` primitive
+/// (foundation/core) — `ContextValue` is context's name for it, so a promoted
+/// property and a structured content field are literally the same type, not two
+/// identical ones.
+pub use xcore::ScalarValue as ContextValue;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct MessageContext {
