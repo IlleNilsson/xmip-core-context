@@ -5,8 +5,13 @@
 //! Content is immutable and context accumulates. Promoted properties land here
 //! as text, and so does the identity a Message arrived with — both layers of
 //! it, per ADR-0019 clause 6.
+//!
+//! [`property`] holds every name a property travels under when one layer
+//! writes it and another reads it — a transport and the identity gates,
+//! the runtime and a route (ADR-0019, amendment 2026-09-24).
 
 pub mod facts;
+pub mod property;
 
 pub use facts::{
     Alignment, AlignmentResult, AuthenticatedIdentity, IdentityFacts, OnMisalignment, Verified,
