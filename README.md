@@ -27,3 +27,16 @@ and again by both `ssh-key` gates, and the runtime wrote `xmip.party` as a
 literal (the owner, 2026-09-24; ADR-0019, amendment 2026-09-24). A name the
 identity gates hand one another and nobody else writes stays
 `identify::evidence`.
+
+A header, whichever protocol carried it, travels under
+`<protocol>.header.<name>` — `http.header.content-type`,
+`amqp.header.x-priority`, `kafka.header.Trace-Id` — on the arrival and in the
+Message Context alike. The name is in lower case only where the protocol's
+specification folds it: `property::HEADER_CASE_FOLDING` is the one table of
+those protocols (HTTP and what rides on it, SSDP, the mail protocols and MIME,
+SIP), each cited to its clause; every other protocol keeps the name as
+written, so Kafka's `Trace-Id` and `trace-id` stay two headers. `property::header` builds that name and is the only
+place it is spelled; the well-known HTTP header names are built from the same
+spelling, a transport that writes a header calls it, and the identity gates
+and `route/header` read through it (the owner, 2026-09-24; ADR-0019,
+amendment 2026-09-24).
