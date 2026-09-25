@@ -25,21 +25,112 @@ pub const PEER_ADDRESS: &str = "peer.address";
 /// The peer's hardware address, as the transport reported it.
 pub const PEER_MAC: &str = "peer.mac";
 
+// A header, whichever protocol carried it.
+
+/// What stands between a protocol and a header's name, written once for
+/// the builders below and the well-known header names after them.
+macro_rules! header_infix {
+    () => {
+        ".header."
+    };
+}
+
+/// The protocols whose specification compares a header's name without
+/// regard to case, each with the clause that says so. A header of one of
+/// these travels under its name in lower case, so two spellings are one
+/// header; a header of any other protocol keeps its name exactly as it
+/// was written, because there `Trace-Id` and `trace-id` are two headers —
+/// Kafka record headers, AMQP application properties, NATS headers and
+/// MQTT user properties are compared byte for byte. The one table of it
+/// (ADR-0046, amendment 2026-09-25).
+pub const HEADER_CASE_FOLDING: &[(&str, &str)] = &[
+    (
+        "http",
+        "RFC 9110 section 5.1: field names are case-insensitive",
+    ),
+    ("https", "RFC 9110 section 5.1, as http"),
+    (
+        "as2",
+        "RFC 4130 section 5: HTTP, whose field names fold (RFC 9110 5.1)",
+    ),
+    (
+        "as4",
+        "OASIS AS4 profile: ebMS 3.0 over HTTP (RFC 9110 5.1)",
+    ),
+    ("webdav", "RFC 4918 section 10: HTTP headers (RFC 9110 5.1)"),
+    (
+        "websocket",
+        "RFC 6455 section 4.1: the handshake is HTTP (RFC 9110 5.1)",
+    ),
+    (
+        "ssdp",
+        "UPnP Device Architecture 2.0 section 1: HTTPU, names fold",
+    ),
+    (
+        "smtp",
+        "RFC 5322 section 1.2.2: header field names are case-insensitive",
+    ),
+    ("imap", "RFC 5322 section 1.2.2, the messages IMAP carries"),
+    ("pop3", "RFC 5322 section 1.2.2, the messages POP3 carries"),
+    ("mime", "RFC 2045 section 1 and RFC 5322 section 1.2.2"),
+    (
+        "sip",
+        "RFC 3261 section 7.3.1: field names are case-insensitive",
+    ),
+];
+
+/// Whether `protocol`'s specification folds a header name's case, by
+/// [`HEADER_CASE_FOLDING`].
+#[must_use]
+pub fn header_folds_case(protocol: &str) -> bool {
+    HEADER_CASE_FOLDING
+        .iter()
+        .any(|(folding, _)| folding.eq_ignore_ascii_case(protocol))
+}
+
+/// The name a header travels under, on the arrival and in the Message
+/// Context alike: `<protocol>.header.<name>` — `http.header.content-type`,
+/// `amqp.header.x-priority`, `kafka.header.Trace-Id`. The protocol is the
+/// transport's own word for what it speaks, as a URI scheme gives it, in
+/// lower case as a scheme compares; the name is in lower case where the
+/// protocol folds it ([`HEADER_CASE_FOLDING`]) and as written everywhere
+/// else. Every transport that writes a header and every reader of one
+/// builds the name here (the owner, 2026-09-24).
+#[must_use]
+pub fn header(protocol: &str, name: &str) -> String {
+    let name = if header_folds_case(protocol) {
+        name.to_ascii_lowercase()
+    } else {
+        name.to_string()
+    };
+    format!(
+        concat!("{}", header_infix!(), "{}"),
+        protocol.to_ascii_lowercase(),
+        name
+    )
+}
+
+/// What every header of `protocol` begins with: `http.header.`.
+#[must_use]
+pub fn header_prefix(protocol: &str) -> String {
+    format!(
+        concat!("{}", header_infix!()),
+        protocol.to_ascii_lowercase()
+    )
+}
+
 // HTTP, as the transport read the request.
 
-/// What every request header travels under, its name in lower case after:
-/// `http.header.x-api-key`.
-pub const HTTP_HEADER_PREFIX: &str = "http.header.";
 /// What every query parameter travels under, its name after it.
 pub const HTTP_QUERY_PREFIX: &str = "http.query.";
 /// The `Authorization` header, whole: scheme and credentials.
-pub const HTTP_AUTHORIZATION: &str = "http.header.authorization";
+pub const HTTP_AUTHORIZATION: &str = concat!("http", header_infix!(), "authorization");
 /// The `Cookie` header, whole.
-pub const HTTP_COOKIE: &str = "http.header.cookie";
+pub const HTTP_COOKIE: &str = concat!("http", header_infix!(), "cookie");
 /// The `Forwarded` header (RFC 7239), whole.
-pub const HTTP_FORWARDED: &str = "http.header.forwarded";
+pub const HTTP_FORWARDED: &str = concat!("http", header_infix!(), "forwarded");
 /// The `X-Forwarded-For` header, whole.
-pub const HTTP_X_FORWARDED_FOR: &str = "http.header.x-forwarded-for";
+pub const HTTP_X_FORWARDED_FOR: &str = concat!("http", header_infix!(), "x-forwarded-for");
 /// A posted form's `SAMLResponse` field, as posted: base64.
 pub const HTTP_FORM_SAML_RESPONSE: &str = "http.form.samlresponse";
 /// The request's method, `POST`.
@@ -96,7 +187,6 @@ pub const PARTY_RECEIVER: &str = "xmip.party.receiver";
 pub const ALL: &[&str] = &[
     PEER_ADDRESS,
     PEER_MAC,
-    HTTP_HEADER_PREFIX,
     HTTP_QUERY_PREFIX,
     HTTP_AUTHORIZATION,
     HTTP_COOKIE,
@@ -134,15 +224,38 @@ mod tests {
     }
 
     #[test]
-    fn a_header_travels_under_the_header_prefix_in_lower_case() {
-        for header in [
-            HTTP_AUTHORIZATION,
-            HTTP_COOKIE,
-            HTTP_FORWARDED,
-            HTTP_X_FORWARDED_FOR,
+    fn a_header_travels_under_its_protocol_and_its_name() {
+        assert_eq!(header("http", "Content-Type"), "http.header.content-type");
+        assert_eq!(header("AMQP", "x-priority"), "amqp.header.x-priority");
+        assert_eq!(header("kafka", "Trace-Id"), "kafka.header.Trace-Id");
+        assert_eq!(header_prefix("http"), "http.header.");
+        assert!(header("http", "x-api-key").starts_with(&header_prefix("http")));
+    }
+
+    #[test]
+    fn http_folds_a_header_names_case_and_kafka_keeps_it() {
+        assert_eq!(header("http", "Trace-Id"), header("http", "trace-id"));
+        assert_eq!(header("HTTP", "Trace-Id"), header("http", "TRACE-ID"));
+        assert_ne!(header("kafka", "Trace-Id"), header("kafka", "trace-id"));
+        for protocol in ["kafka", "amqp", "nats", "mqtt"] {
+            assert!(!header_folds_case(protocol), "{protocol}");
+        }
+        for (protocol, clause) in HEADER_CASE_FOLDING {
+            assert!(header_folds_case(protocol));
+            assert_eq!(*protocol, protocol.to_ascii_lowercase());
+            assert!(!clause.is_empty());
+        }
+    }
+
+    #[test]
+    fn the_well_known_http_headers_are_the_builders_names() {
+        for (constant, name) in [
+            (HTTP_AUTHORIZATION, "Authorization"),
+            (HTTP_COOKIE, "Cookie"),
+            (HTTP_FORWARDED, "Forwarded"),
+            (HTTP_X_FORWARDED_FOR, "X-Forwarded-For"),
         ] {
-            let name = header.strip_prefix(HTTP_HEADER_PREFIX).expect("a header");
-            assert_eq!(name, name.to_ascii_lowercase());
+            assert_eq!(constant, header("http", name));
         }
     }
 }
