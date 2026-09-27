@@ -7,7 +7,19 @@ with — both layers of it, per ADR-0019 clause 6.
 Context is not content. Content is immutable and context accumulates; a value
 promoted into context drives Subscription evaluation without the content being
 parsed again. Context does not hold the Stream and does not decide anything
-itself: promotion writes it, routing reads it.
+itself: promotion writes it, routing reads it. A value in it is
+`xcore::ScalarValue`, the same type a structured content field is.
+
+## The identity facts
+
+`IdentityFacts` holds both identities and how they align; `held()` walks
+them, the transport's first and the message's where there is one, for a
+policy that reads either layer. An `AuthenticatedIdentity` answers what its
+gate recorded under a name with `evidence(name)` — the first value — and
+`evidence_values(name)`: a name with several values is recorded one entry
+per value and read one entry per value, never split, so an issuer's
+distinguished name with its commas stays one value. Every authorize
+technology reads evidence through these two, and nowhere else.
 
 `doc/architecture/runtime-model.md` section 9 (promotion, demotion and the
 content selectors) and `module-model.md` section 2 govern it;

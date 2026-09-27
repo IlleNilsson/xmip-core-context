@@ -121,6 +121,24 @@ impl AuthenticatedIdentity {
         self
     }
 
+    /// The first value the gate recorded under `name`, if any.
+    #[must_use]
+    pub fn evidence(&self, name: &str) -> Option<&str> {
+        self.evidence_values(name).next()
+    }
+
+    /// Every value the gate recorded under `name`, in order. A name with
+    /// several values — a token's `groups`, the roles a directory holds — is
+    /// recorded one entry per value, and read here one entry per value: a
+    /// value is never split, so an issuer's distinguished name with its
+    /// commas is one value.
+    pub fn evidence_values<'a>(&'a self, name: &str) -> impl Iterator<Item = &'a str> {
+        self.evidence
+            .iter()
+            .filter(move |(held, _)| held == name)
+            .map(|(_, value)| value.as_str())
+    }
+
     #[must_use]
     pub fn layer(&self) -> Layer {
         self.mechanism.layer()
@@ -263,6 +281,12 @@ impl IdentityFacts {
     #[must_use]
     pub fn subject(&self) -> &AuthenticatedIdentity {
         self.message.as_ref().unwrap_or(&self.transport)
+    }
+
+    /// Both identities, the transport's first and then the message's where
+    /// there is one: what a policy that reads either layer's evidence walks.
+    pub fn held(&self) -> impl Iterator<Item = &AuthenticatedIdentity> {
+        std::iter::once(&self.transport).chain(self.message.as_ref())
     }
 
     /// Who is **accountable for the transmission** — audit, rate limiting,
@@ -428,5 +452,7 @@ mod tests {
         );
 
         assert_eq!(facts.transport.evidence.len(), 2);
+        assert_eq!(facts.transport.evidence("issuer"), Some("CN=Example CA"));
+        assert_eq!(facts.transport.evidence("absent"), None);
     }
 }
