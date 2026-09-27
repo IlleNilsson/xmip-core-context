@@ -19,15 +19,14 @@ pub use facts::{
 
 use std::collections::BTreeMap;
 
-/// A promoted property's value is one scalar, the shared `ScalarValue` primitive
-/// (foundation/core) — `ContextValue` is context's name for it, so a promoted
-/// property and a structured content field are literally the same type, not two
-/// identical ones.
-pub use xcore::ScalarValue as ContextValue;
+use xcore::ScalarValue;
 
+/// What a Message's handling accumulates. A promoted property's value is one
+/// scalar, `xcore::ScalarValue`, so a promoted property and a structured
+/// content field are the same type, not two identical ones.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct MessageContext {
-    values: BTreeMap<String, ContextValue>,
+    values: BTreeMap<String, ScalarValue>,
 }
 
 impl MessageContext {
@@ -35,7 +34,7 @@ impl MessageContext {
         Self::default()
     }
 
-    pub fn get(&self, key: &str) -> Option<&ContextValue> {
+    pub fn get(&self, key: &str) -> Option<&ScalarValue> {
         self.values.get(key)
     }
 
@@ -43,12 +42,12 @@ impl MessageContext {
         self.values.contains_key(key)
     }
 
-    pub fn with_value(mut self, key: impl Into<String>, value: ContextValue) -> Self {
+    pub fn with_value(mut self, key: impl Into<String>, value: ScalarValue) -> Self {
         self.values.insert(key.into(), value);
         self
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&str, &ContextValue)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&str, &ScalarValue)> {
         self.values.iter().map(|(key, value)| (key.as_str(), value))
     }
 }
@@ -60,7 +59,7 @@ mod tests {
     #[test]
     fn context_is_built_immutably() {
         let context = MessageContext::new()
-            .with_value("source.uri", ContextValue::Text("file:///in/a.xml".into()));
+            .with_value("source.uri", ScalarValue::Text("file:///in/a.xml".into()));
         assert!(context.contains_key("source.uri"));
     }
 }
