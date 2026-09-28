@@ -163,7 +163,8 @@ pub const SSH_KEY: &str = "ssh.key";
 pub const SSH_USER: &str = "ssh.user";
 /// The signature the peer made with its key, base64.
 pub const SSH_SIGNATURE: &str = "ssh.signature";
-/// The session identifier that signature covers, base64.
+/// What that signature covers, base64: RFC 4252's signed data, which opens
+/// with the session identifier and names the user and the key.
 pub const SSH_SESSION: &str = "ssh.session";
 
 // NTLM, the handshake legs only the transport saw.
