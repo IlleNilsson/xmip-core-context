@@ -35,7 +35,7 @@ pub enum Verified {
 pub struct AuthenticatedIdentity {
     /// How it was proven, or would have been.
     pub mechanism: Mechanism,
-    /// The value presented — `CN=partner-x.example`, `ISA06=PARTNERX`.
+    /// The value presented — `CN=party-x.example`, `ISA06=PARTYX`.
     pub value: String,
     /// How the first gate came by it: passed, inferred or detected.
     ///
@@ -240,7 +240,7 @@ impl IdentityFacts {
 
             // Relaxed and Strict both compare at the Party today, and that is
             // not an oversight — ADR-0019 expresses alignment at the Party
-            // rather than at the credential precisely so a partner reaching
+            // rather than at the credential precisely so a Party reaching
             // Xmip through two endpoints with two certificates is still one
             // Party.
             //
@@ -339,7 +339,7 @@ mod tests {
     fn isa06(party: Option<PartyId>) -> AuthenticatedIdentity {
         let identity = AuthenticatedIdentity::new(
             mechanism::edi_x12_interchange(),
-            "ISA06=PARTNERX",
+            "ISA06=PARTYX",
             Established::Detected,
             Verified::Claimed,
         );
