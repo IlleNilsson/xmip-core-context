@@ -30,6 +30,30 @@ pub enum Verified {
     Refused,
 }
 
+impl Verified {
+    /// Every conclusion, the strongest first.
+    pub const ALL: [Self; 3] = [Self::Proven, Self::Claimed, Self::Refused];
+
+    /// The word it is written in, here and nowhere else.
+    #[must_use]
+    pub const fn word(self) -> &'static str {
+        match self {
+            Self::Proven => "proven",
+            Self::Claimed => "claimed",
+            Self::Refused => "refused",
+        }
+    }
+
+    /// The conclusion a word names, exactly: what a record kept of it read
+    /// back.
+    #[must_use]
+    pub fn named(word: &str) -> Option<Self> {
+        Self::ALL
+            .into_iter()
+            .find(|verified| verified.word() == word)
+    }
+}
+
 /// One identity, on one layer, and everything known about it.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AuthenticatedIdentity {
@@ -206,6 +230,31 @@ pub enum AlignmentResult {
 }
 
 impl AlignmentResult {
+    /// Every outcome, in the order the enum declares them.
+    pub const ALL: [Self; 4] = [
+        Self::NotCompared,
+        Self::NoMessageIdentity,
+        Self::Aligned,
+        Self::Misaligned,
+    ];
+
+    /// The word it is written in, here and nowhere else.
+    #[must_use]
+    pub const fn word(self) -> &'static str {
+        match self {
+            Self::NotCompared => "not-compared",
+            Self::NoMessageIdentity => "no-message-identity",
+            Self::Aligned => "aligned",
+            Self::Misaligned => "misaligned",
+        }
+    }
+
+    /// The outcome a word names, exactly: what a record kept of it read back.
+    #[must_use]
+    pub fn named(word: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|result| result.word() == word)
+    }
+
     #[must_use]
     pub const fn is_misaligned(self) -> bool {
         matches!(self, Self::Misaligned)
@@ -321,6 +370,20 @@ impl fmt::Display for IdentityFacts {
 mod tests {
     use super::*;
     use xcore::mechanism;
+
+    #[test]
+    fn a_conclusion_and_an_alignment_are_their_words() {
+        for verified in Verified::ALL {
+            assert_eq!(Verified::named(verified.word()), Some(verified));
+        }
+        for result in AlignmentResult::ALL {
+            assert_eq!(AlignmentResult::named(result.word()), Some(result));
+        }
+        for way in Established::ALL {
+            assert_eq!(Established::named(&way.to_string()), Some(way));
+        }
+        assert_eq!(Verified::named("Proven"), None);
+    }
 
     fn tls(party: Option<PartyId>) -> AuthenticatedIdentity {
         let identity = AuthenticatedIdentity::new(
