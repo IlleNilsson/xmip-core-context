@@ -9,8 +9,11 @@
 //! [`property`] holds every name a property travels under when one layer
 //! writes it and another reads it — a transport and the identity gates,
 //! the runtime and a route (ADR-0019, amendment 2026-09-24).
+//! [`facts_record`] is the identity facts' one binary form, what the Ledger
+//! keeps beside a held Journey.
 
 pub mod facts;
+pub mod facts_record;
 pub mod property;
 
 pub use facts::{

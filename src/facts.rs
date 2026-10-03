@@ -204,7 +204,7 @@ pub enum OnMisalignment {
     /// Proceed. The misalignment is recorded here and audited.
     #[default]
     Accept,
-    /// To the Xmip DMQ with both identities and the alignment result, per
+    /// To the Dead Message Queue with both identities and the alignment result, per
     /// ADR-0013.
     Quarantine,
     /// Refused at message authorization.
