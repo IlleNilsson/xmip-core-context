@@ -177,6 +177,55 @@ pub const NTLM_NEGOTIATE: &str = "ntlm.negotiate";
 /// too.
 pub const NTLM_CHALLENGE: &str = "ntlm.challenge";
 
+// A protocol's own word for its sender, each named after its field in the
+// standard and written by the transport that reads it (the owner,
+// 2026-10-06: *that goes for all streams*; ADR-0019 amendment 2026-10-06).
+
+/// The reverse-path of SMTP's `MAIL FROM` (RFC 5321 section 4.1.1.2).
+pub const SMTP_MAIL_FROM: &str = "smtp.mail-from";
+/// The Calling-AE-title of a DICOM A-ASSOCIATE request (PS3.8 section 9.3.2).
+pub const DICOM_CALLING_AE_TITLE: &str = "dicom.calling-ae-title";
+/// A CAN frame's identifier, hexadecimal (ISO 11898-1): the sender on a bus
+/// and on what rides on it — ISO-TP, UDS, OBD-II.
+pub const CAN_IDENTIFIER: &str = "can.identifier";
+/// A J1939 message's source address (SAE J1939-21), decimal.
+pub const J1939_SOURCE_ADDRESS: &str = "j1939.source-address";
+/// A CANopen node's Node-ID (CiA 301), decimal.
+pub const CANOPEN_NODE_ID: &str = "canopen.node-id";
+/// An EtherCAT slave's configured station address (ETG.1000.4), hexadecimal.
+pub const ETHERCAT_STATION_ADDRESS: &str = "ethercat.station-address";
+/// The IO-Link master port a device answers on (IEC 61131-9).
+pub const IO_LINK_PORT: &str = "io-link.port";
+/// A HART field device's address (HART 7, the polling or long address).
+pub const HART_ADDRESS: &str = "hart.address";
+/// A WirelessHART device's nickname, its DLPDU source address (IEC 62591).
+pub const WIRELESS_HART_NICKNAME: &str = "wireless-hart.nickname";
+/// An M-Bus slave's primary address (EN 13757-2).
+pub const M_BUS_PRIMARY_ADDRESS: &str = "m-bus.primary-address";
+/// A wireless M-Bus meter's identification number (EN 13757-4).
+pub const M_BUS_IDENTIFICATION_NUMBER: &str = "m-bus.identification-number";
+/// The user id a Unix-domain socket's peer process runs as, as
+/// `SO_PEERCRED` reports it.
+pub const UNIX_PEER_UID: &str = "unix.peer.uid";
+/// The group id of that process.
+pub const UNIX_PEER_GID: &str = "unix.peer.gid";
+/// The process id of that process.
+pub const UNIX_PEER_PID: &str = "unix.peer.pid";
+/// The process id of a named pipe's client.
+pub const NAMED_PIPE_CLIENT_PROCESS_ID: &str = "named-pipe.client-process-id";
+/// The user id that owns a file taken from a folder or a share.
+pub const FILE_OWNER: &str = "file.owner";
+/// The group id that owns it.
+pub const FILE_GROUP: &str = "file.group";
+/// Its permission bits, octal: `0640`.
+pub const FILE_MODE: &str = "file.mode";
+/// AMQP 0-9-1's `user-id` message property, which the broker validates.
+pub const AMQP_USER_ID: &str = "amqp.user-id";
+/// IBM MQ's `UserIdentifier`, in the message descriptor (MQMD).
+pub const IBM_MQ_USER_IDENTIFIER: &str = "ibm-mq.user-identifier";
+/// Amazon SQS's `SenderId` message system attribute.
+pub const SQS_SENDER_ID: &str = "sqs.sender-id";
+
 // The Message Context, as the runtime wrote it.
 
 /// The Party the message identity resolved to: the sender.
@@ -208,6 +257,27 @@ pub const ALL: &[&str] = &[
     SSH_SESSION,
     NTLM_NEGOTIATE,
     NTLM_CHALLENGE,
+    SMTP_MAIL_FROM,
+    DICOM_CALLING_AE_TITLE,
+    CAN_IDENTIFIER,
+    J1939_SOURCE_ADDRESS,
+    CANOPEN_NODE_ID,
+    ETHERCAT_STATION_ADDRESS,
+    IO_LINK_PORT,
+    HART_ADDRESS,
+    WIRELESS_HART_NICKNAME,
+    M_BUS_PRIMARY_ADDRESS,
+    M_BUS_IDENTIFICATION_NUMBER,
+    UNIX_PEER_UID,
+    UNIX_PEER_GID,
+    UNIX_PEER_PID,
+    NAMED_PIPE_CLIENT_PROCESS_ID,
+    FILE_OWNER,
+    FILE_GROUP,
+    FILE_MODE,
+    AMQP_USER_ID,
+    IBM_MQ_USER_IDENTIFIER,
+    SQS_SENDER_ID,
     PARTY,
     PARTY_RECEIVER,
 ];
