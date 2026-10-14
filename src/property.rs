@@ -314,7 +314,7 @@ mod tests {
         for (protocol, clause) in HEADER_CASE_FOLDING {
             assert!(header_folds_case(protocol));
             assert_eq!(*protocol, protocol.to_ascii_lowercase());
-            assert!(!clause.is_empty());
+            assert_ne!(*clause, "");
         }
     }
 
