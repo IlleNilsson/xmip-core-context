@@ -147,8 +147,15 @@ pub const TLS_PEER_SUBJECT: &str = "tls.peer.subject";
 pub const TLS_PEER_UPN: &str = "tls.peer.upn";
 /// The chain the peer sent, as PEM, leaf first.
 pub const TLS_PEER_CHAIN: &str = "tls.peer.chain";
-/// The transport's word that its handshake verified the chain: `true`.
+/// The transport's word that its handshake verified the chain,
+/// [`TLS_HANDSHAKE_VERIFIED`].
 pub const TLS_PEER_VERIFIED: &str = "tls.peer.verified";
+/// What a transport writes under [`TLS_PEER_VERIFIED`] when its handshake
+/// verified the peer's chain to the anchors it was given, and the one word
+/// `mutual-tls` takes as proof (ADR-0033, amendment 2026-09-18). Written
+/// here once since 2026-10-19, for the transport that writes it and the gate
+/// that reads it.
+pub const TLS_HANDSHAKE_VERIFIED: &str = "verified";
 /// The peer certificate's issuer distinguished name.
 pub const TLS_PEER_ISSUER: &str = "tls.peer.issuer";
 /// The peer certificate's fingerprint, `SHA256:` and its hex.

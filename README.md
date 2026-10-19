@@ -30,7 +30,9 @@ content selectors) and `module-model.md` section 2 govern it;
 `context::property` holds every name a property travels under when one layer
 writes it and another reads it: what a transport says about an arrival — the
 peer's address and hardware address, HTTP's headers, query, form, method and
-target, the TLS peer certificate, the SSH public-key exchange, the first two
+target, the TLS peer certificate and the word a transport writes for a
+handshake that verified it (`TLS_HANDSHAKE_VERIFIED`, `verified`), the SSH
+public-key exchange, the first two
 NTLM legs — which the identity gates read, and the Party the runtime writes
 into the Message Context, which a route reads. One declaration each, below
 both sides. Until 2026-09-24 the peer's address was
