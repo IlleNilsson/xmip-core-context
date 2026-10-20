@@ -226,6 +226,11 @@ pub const FILE_OWNER: &str = "file.owner";
 pub const FILE_GROUP: &str = "file.group";
 /// Its permission bits, octal: `0640`.
 pub const FILE_MODE: &str = "file.mode";
+/// The name it was dropped under, `order-1001.edi`: what a file Send
+/// Location names the Message's file by in the directory its address
+/// names (ADR-0024, amendment 2026-10-20). The Message Context keeps it
+/// ([`KEPT`]).
+pub const FILE_NAME: &str = "file.name";
 /// AMQP 0-9-1's `user-id` message property, which the broker validates.
 pub const AMQP_USER_ID: &str = "amqp.user-id";
 /// IBM MQ's `UserIdentifier`, in the message descriptor (MQMD).
@@ -239,6 +244,12 @@ pub const SQS_SENDER_ID: &str = "sqs.sender-id";
 pub const PARTY: &str = "xmip.party";
 /// The Party a Message is for, where one is named.
 pub const PARTY_RECEIVER: &str = "xmip.party.receiver";
+
+/// What a transport says of an arrival that the runtime also writes into
+/// the Message Context, under the same name, beside the headers: what a
+/// send reads of where the Message came from. A file's name, so a file
+/// Send Location writes it under the name it was dropped under.
+pub const KEPT: &[&str] = &[FILE_NAME];
 
 /// Every name here, for a test that holds them apart.
 pub const ALL: &[&str] = &[
@@ -282,6 +293,7 @@ pub const ALL: &[&str] = &[
     FILE_OWNER,
     FILE_GROUP,
     FILE_MODE,
+    FILE_NAME,
     AMQP_USER_ID,
     IBM_MQ_USER_IDENTIFIER,
     SQS_SENDER_ID,

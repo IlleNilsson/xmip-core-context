@@ -40,7 +40,11 @@ both sides. Until 2026-09-24 the peer's address was
 and again by both `ssh-key` gates, and the runtime wrote `xmip.party` as a
 literal (the owner, 2026-09-24; ADR-0019, amendment 2026-09-24). A name the
 identity gates hand one another and nobody else writes stays
-`identify::evidence`.
+`identify::evidence`. What a transport says of an arrival that the runtime
+also keeps in the Message Context, under the same name, is
+`property::KEPT`: a dropped file's name, `file.name` (`FILE_NAME`), which a
+file Send Location writes the Message's file under (ADR-0024, amendment
+2026-10-20).
 
 A header, whichever protocol carried it, travels under
 `<protocol>.header.<name>` — `http.header.content-type`,
