@@ -72,7 +72,7 @@ pub struct AuthenticatedIdentity {
     pub verified: Verified,
     /// The Party it resolved to, where the registry knew one.
     ///
-    /// `None` is ordinary: an unrecognised caller is still authenticated or
+    /// `None` is ordinary: an unrecognized caller is still authenticated or
     /// refused on its own terms. A Party is a shortcut to an identity, not a
     /// permission, so failing to resolve one decides nothing by itself.
     pub party_id: Option<PartyId>,
@@ -85,7 +85,7 @@ pub struct AuthenticatedIdentity {
     /// **A Journey may take days.** A Process waits for a human, and by the
     /// time it resumes the certificate may have expired, the token lapsed, the
     /// Party been revoked. What is recorded here is what was true *then*, and
-    /// it is never a licence to act *now* — which is exactly why the time has
+    /// it is never a license to act *now* — which is exactly why the time has
     /// to travel with it.
     ///
     /// Zero is treated as never proven by anything that judges freshness. An
@@ -179,7 +179,7 @@ impl AuthenticatedIdentity {
 /// This is DMARC's structure, adopted deliberately: SPF proves the envelope
 /// sender, DKIM proves the author domain, and DMARC is neither — it is the
 /// alignment policy between them plus what to do when alignment fails. The same
-/// problem, a decade in production on internet mail, standardised as RFC 9989.
+/// problem, a decade in production on internet mail, standardized as RFC 9989.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum Alignment {
     /// Record both, never compare. The relaying case, and the default.
