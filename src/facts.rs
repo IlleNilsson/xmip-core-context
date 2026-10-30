@@ -82,7 +82,7 @@ pub struct AuthenticatedIdentity {
 
     /// When the gate concluded, in unix nanoseconds. Zero means unrecorded.
     ///
-    /// **A Journey may take days.** A Process waits for a human, and by the
+    /// **A Message may wait days.** A Process waits for a human, and by the
     /// time it resumes the certificate may have expired, the token lapsed, the
     /// Party been revoked. What is recorded here is what was true *then*, and
     /// it is never a license to act *now* — which is exactly why the time has
@@ -320,7 +320,7 @@ impl IdentityFacts {
         }
     }
 
-    /// Who the Journey is **for** — Subscription matching, Party resolution,
+    /// Who the Message is **for** — Subscription matching, Party resolution,
     /// contract selection, billing. ADR-0019 clause 7.
     ///
     /// The message identity where one exists, because that is what names the
@@ -461,7 +461,7 @@ mod tests {
             Some(isa06(Some(PartyId::new(2)))),
         );
 
-        // Who the Journey is for, and who is accountable for the transmission.
+        // Who the Message is for, and who is accountable for the transmission.
         assert_eq!(facts.subject().party_id, Some(PartyId::new(2)));
         assert_eq!(facts.accountable().party_id, Some(PartyId::new(1)));
     }
