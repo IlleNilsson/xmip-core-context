@@ -1,5 +1,5 @@
 //! What arrival concluded of a Message's identities, in one binary form:
-//! what the Ledger keeps beside a Journey a paused Subscription holds, so
+//! what the Ledger keeps beside a Message a paused Subscription holds, so
 //! its departure reads back the identities the Message arrived with,
 //! whichever node picks it up and however long after (ADR-0019 clause 6;
 //! `runtime-model.md` section 9).

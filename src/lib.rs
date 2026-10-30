@@ -10,7 +10,7 @@
 //! writes it and another reads it — a transport and the identity gates,
 //! the runtime and a route (ADR-0019, amendment 2026-09-24).
 //! [`facts_record`] is the identity facts' one binary form, what the Ledger
-//! keeps beside a held Journey.
+//! keeps beside a held Message.
 
 pub mod facts;
 pub mod facts_record;
