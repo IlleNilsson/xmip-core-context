@@ -21,13 +21,15 @@ use codec::field::{many, optional, place, placed, read_many, read_optional, read
 use codec::writer::ByteWriter;
 use xcore::{Established, Mechanism, PartyId};
 
-use crate::{AlignmentResult, AuthenticatedIdentity, IdentityFacts, Verified};
+use crate::{AlignmentResult, AuthenticatedIdentity, IdentityFacts, UncheckedClaim, Verified};
 
-/// The form's number, the first byte of every record written in it.
-pub const FORM: u8 = 1;
+/// The form's number, the first byte of every record written in it. Form 2
+/// keeps the claims no authenticator checked after the alignment.
+pub const FORM: u8 = 2;
 
 impl IdentityFacts {
-    /// Both identities and their alignment, in their one binary form.
+    /// Both identities, their alignment and every unchecked claim, in their
+    /// one binary form.
     #[must_use]
     pub fn record(&self) -> Vec<u8> {
         let mut out = Vec::with_capacity(128);
@@ -35,6 +37,11 @@ impl IdentityFacts {
         identity(&mut out, &self.transport);
         optional(&mut out, self.message.as_ref(), identity);
         out.byte(place(&AlignmentResult::ALL, &self.alignment));
+        many(&mut out, &self.unchecked, |out, claim| {
+            text(out, claim.mechanism.name());
+            text(out, &claim.value);
+            out.byte(place(&Established::ALL, &claim.established));
+        });
         out
     }
 
@@ -61,6 +68,7 @@ impl IdentityFacts {
         let transport = read_identity(&mut cursor, &carried)?;
         let message = read_optional(&mut cursor, |c| read_identity(c, &carried))?;
         let alignment = placed(&AlignmentResult::ALL, cursor.byte()?, "alignment")?;
+        let unchecked = read_many(&mut cursor, |c| read_unchecked(c, &carried))?;
         if !cursor.is_empty() {
             return Err(CodecError::new("bytes after the identity facts"));
         }
@@ -68,8 +76,24 @@ impl IdentityFacts {
             transport,
             message,
             alignment,
+            unchecked,
         })
     }
+}
+
+fn read_unchecked(
+    cursor: &mut Cursor<'_>,
+    carried: &impl Fn(&str) -> Option<Mechanism>,
+) -> Result<UncheckedClaim, CodecError> {
+    let name = read_text(cursor)?;
+    let mechanism = carried(&name).ok_or_else(|| {
+        CodecError::new(format!(
+            "the mechanism '{name}' an unchecked claim was presented under is not carried here"
+        ))
+    })?;
+    let value = read_text(cursor)?;
+    let established = placed(&Established::ALL, cursor.byte()?, "establishment")?;
+    Ok(UncheckedClaim::new(mechanism, value, established))
 }
 
 fn identity(out: &mut Vec<u8>, identity: &AuthenticatedIdentity) {
@@ -138,6 +162,11 @@ mod tests {
                 .with_evidence("peer", "127.0.0.1 — åäö"),
             Some(identity("ISA06=PARTYX")),
         )
+        .with_unchecked([UncheckedClaim::new(
+            mechanism::circumstance(),
+            "file:///C:/in/order.edi",
+            Established::Inferred,
+        )])
     }
 
     #[test]

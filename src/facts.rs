@@ -13,6 +13,8 @@ use std::fmt;
 use xcore::PartyId;
 use xcore::{Established, IdentityClass, Layer, Mechanism};
 
+use crate::UncheckedClaim;
+
 /// What a gate concluded about one presented identity.
 ///
 /// Every arrival gets one of these, on the transport layer at minimum. ADR-0019
@@ -51,6 +53,14 @@ impl Verified {
         Self::ALL
             .into_iter()
             .find(|verified| verified.word() == word)
+    }
+
+    /// Whether the mechanism proved the claim: the one answer to "proven"
+    /// anything records, read from the verdict and never from the
+    /// mechanism's name or the assurance its catalog states.
+    #[must_use]
+    pub const fn is_proven(self) -> bool {
+        matches!(self, Self::Proven)
     }
 }
 
@@ -273,6 +283,10 @@ pub struct IdentityFacts {
     /// has nothing: a raw CSV carries no message identity at all.
     pub message: Option<AuthenticatedIdentity>,
     pub alignment: AlignmentResult,
+    /// Every other claim the arrival presented, which no authenticator
+    /// checked: recorded as claimed, never as proven, and never handed to
+    /// authorization (ADR-0019, amendment 2026-10-30).
+    pub unchecked: Vec<UncheckedClaim>,
 }
 
 impl IdentityFacts {
@@ -317,7 +331,15 @@ impl IdentityFacts {
             transport,
             message,
             alignment,
+            unchecked: Vec::new(),
         }
+    }
+
+    /// The same facts, recording `claims` as unchecked beside them.
+    #[must_use]
+    pub fn with_unchecked(mut self, claims: impl IntoIterator<Item = UncheckedClaim>) -> Self {
+        self.unchecked.extend(claims);
+        self
     }
 
     /// Who the Message is **for** — Subscription matching, Party resolution,

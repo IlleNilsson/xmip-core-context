@@ -15,10 +15,12 @@
 pub mod facts;
 pub mod facts_record;
 pub mod property;
+pub mod unchecked_claim;
 
 pub use facts::{
     Alignment, AlignmentResult, AuthenticatedIdentity, IdentityFacts, OnMisalignment, Verified,
 };
+pub use unchecked_claim::UncheckedClaim;
 
 use std::collections::BTreeMap;
 
