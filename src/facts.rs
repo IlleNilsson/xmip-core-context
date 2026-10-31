@@ -13,56 +13,7 @@ use std::fmt;
 use xcore::PartyId;
 use xcore::{Established, IdentityClass, Layer, Mechanism};
 
-use crate::UncheckedClaim;
-
-/// What a gate concluded about one presented identity.
-///
-/// Every arrival gets one of these, on the transport layer at minimum. ADR-0019
-/// clause 2: anonymous is an authenticated outcome and not a skipped gate — the
-/// claim is "nobody", it is verified as such, and authorization decides
-/// afterwards whether nobody may post here.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Verified {
-    /// The mechanism proved the claim.
-    Proven,
-    /// A name was claimed and the mechanism carries nothing to prove it. X12's
-    /// ISA06, EDIFACT's UNB, HL7's MSH-3. What the protocol provides.
-    Claimed,
-    /// The mechanism could have proved the claim and did not.
-    Refused,
-}
-
-impl Verified {
-    /// Every conclusion, the strongest first.
-    pub const ALL: [Self; 3] = [Self::Proven, Self::Claimed, Self::Refused];
-
-    /// The word it is written in, here and nowhere else.
-    #[must_use]
-    pub const fn word(self) -> &'static str {
-        match self {
-            Self::Proven => "proven",
-            Self::Claimed => "claimed",
-            Self::Refused => "refused",
-        }
-    }
-
-    /// The conclusion a word names, exactly: what a record kept of it read
-    /// back.
-    #[must_use]
-    pub fn named(word: &str) -> Option<Self> {
-        Self::ALL
-            .into_iter()
-            .find(|verified| verified.word() == word)
-    }
-
-    /// Whether the mechanism proved the claim: the one answer to "proven"
-    /// anything records, read from the verdict and never from the
-    /// mechanism's name or the assurance its catalog states.
-    #[must_use]
-    pub const fn is_proven(self) -> bool {
-        matches!(self, Self::Proven)
-    }
-}
+use crate::{UncheckedClaim, Verified};
 
 /// One identity, on one layer, and everything known about it.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -394,17 +345,13 @@ mod tests {
     use xcore::mechanism;
 
     #[test]
-    fn a_conclusion_and_an_alignment_are_their_words() {
-        for verified in Verified::ALL {
-            assert_eq!(Verified::named(verified.word()), Some(verified));
-        }
+    fn an_alignment_and_a_way_are_their_words() {
         for result in AlignmentResult::ALL {
             assert_eq!(AlignmentResult::named(result.word()), Some(result));
         }
         for way in Established::ALL {
             assert_eq!(Established::named(&way.to_string()), Some(way));
         }
-        assert_eq!(Verified::named("Proven"), None);
     }
 
     fn tls(party: Option<PartyId>) -> AuthenticatedIdentity {
