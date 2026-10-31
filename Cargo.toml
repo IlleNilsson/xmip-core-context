@@ -16,6 +16,9 @@ xcore = { package = "xmip-core", git = "https://github.com/IlleNilsson/xmip-core
 # The identity facts' one binary form (`facts_record`), written and read
 # over the estate's one byte writer and cursor.
 codec = { package = "xmip-core-library-codec", git = "https://github.com/IlleNilsson/xmip-core-library-codec", branch = "main" }
+# `Required`, the weakest verdict a Location takes, read from configuration
+# in the words `Verified` writes.
+serde = { version = "1", features = ["derive"] }
 
 [profile.dev.package."*"]
 opt-level = 3

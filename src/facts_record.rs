@@ -24,8 +24,9 @@ use xcore::{Established, Mechanism, PartyId};
 use crate::{AlignmentResult, AuthenticatedIdentity, IdentityFacts, UncheckedClaim, Verified};
 
 /// The form's number, the first byte of every record written in it. Form 2
-/// keeps the claims no authenticator checked after the alignment.
-pub const FORM: u8 = 2;
+/// keeps the claims no authenticator checked after the alignment; form 3
+/// places a verdict among four, `vouched` second.
+pub const FORM: u8 = 3;
 
 impl IdentityFacts {
     /// Both identities, their alignment and every unchecked claim, in their
