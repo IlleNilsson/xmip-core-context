@@ -237,6 +237,22 @@ pub const AMQP_USER_ID: &str = "amqp.user-id";
 pub const IBM_MQ_USER_IDENTIFIER: &str = "ibm-mq.user-identifier";
 /// Amazon SQS's `SenderId` message system attribute.
 pub const SQS_SENDER_ID: &str = "sqs.sender-id";
+/// The sender fields a message broker delivers, in the order the `broker`
+/// identifier reads them: the first one present is the claim.
+pub const BROKER_SENDERS: &[&str] = &[AMQP_USER_ID, IBM_MQ_USER_IDENTIFIER, SQS_SENDER_ID];
+
+// The broker, as the transport's own connection to it found it.
+
+/// The broker a message was received from, by the host its address names:
+/// `sqs.eu-north-1.amazonaws.com`.
+pub const BROKER: &str = "broker";
+/// The transport's word, [`TLS_HANDSHAKE_VERIFIED`], that its connection
+/// proved the broker — the broker's certificate verified for its host and
+/// the Location's secret accepted — and that the broker sets or checks the
+/// sender field it delivered. Written by the transport alone and never from
+/// a header, which travels under `<protocol>.header.` (ADR-0019, amendment
+/// 2026-10-31).
+pub const BROKER_VERIFIED: &str = "broker.verified";
 
 // The Message Context, as the runtime wrote it.
 
@@ -297,6 +313,8 @@ pub const ALL: &[&str] = &[
     AMQP_USER_ID,
     IBM_MQ_USER_IDENTIFIER,
     SQS_SENDER_ID,
+    BROKER,
+    BROKER_VERIFIED,
     PARTY,
     PARTY_RECEIVER,
 ];
