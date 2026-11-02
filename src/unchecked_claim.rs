@@ -1,7 +1,7 @@
 //! A claim an arrival presented that no authenticator checked.
 //!
 //! The owner, 2026-10-29: *First you present your identity, then you get
-//! identified. Then we look to authentication, do your identification hold
+//! identified. Then we look to authentication, does your identification hold
 //! up.* An arrival may present more than one claim — a certificate's
 //! subject and a Basic user name on one request — and the gate
 //! authenticates one per layer. Every other one is kept here: on the record
