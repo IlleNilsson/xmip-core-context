@@ -23,7 +23,7 @@ technology reads evidence through these two, and nowhere else.
 
 `doc/architecture/runtime-model.md` section 9 (promotion, demotion and the
 content selectors) and `module-model.md` section 2 govern it;
-`architecture.toml` carries the maturity.
+`architecture.xmip` carries the maturity.
 
 ## The names that cross a boundary
 
