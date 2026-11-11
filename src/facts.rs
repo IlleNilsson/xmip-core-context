@@ -296,13 +296,19 @@ impl IdentityFacts {
     /// Who the Message is **for** — Subscription matching, Party resolution,
     /// contract selection, billing. ADR-0019 clause 7.
     ///
-    /// The message identity where one exists, because that is what names the
-    /// counterparty the work belongs to. Falls back to transport, which is the
-    /// first degenerate case: with no message identity the transport is
-    /// authoritative for both questions.
+    /// The message identity where it was proven or vouched for, because that
+    /// is what names the counterparty the work belongs to; otherwise the
+    /// transport identity, who opened the connection. A message identity
+    /// merely claimed — an ISA06 nothing proved — is a name the content
+    /// wrote and is never the subject (the owner, 2026-11-10: a Party only
+    /// from what the sender proved; ADR-0019, amendment 2026-11-11). With no
+    /// message identity the transport is authoritative for both questions.
     #[must_use]
     pub fn subject(&self) -> &AuthenticatedIdentity {
-        self.message.as_ref().unwrap_or(&self.transport)
+        self.message
+            .as_ref()
+            .filter(|message| message.verified.names_a_party())
+            .unwrap_or(&self.transport)
     }
 
     /// Both identities, the transport's first and then the message's where
@@ -424,15 +430,29 @@ mod tests {
 
     #[test]
     fn the_two_layers_answer_different_questions() {
+        let mut vouched = isa06(Some(PartyId::new(2)));
+        vouched.verified = Verified::Vouched;
+        let facts =
+            IdentityFacts::evaluate(Alignment::None, tls(Some(PartyId::new(1))), Some(vouched));
+
+        // Who the Message is for, and who is accountable for the transmission.
+        assert_eq!(facts.subject().party_id, Some(PartyId::new(2)));
+        assert_eq!(facts.accountable().party_id, Some(PartyId::new(1)));
+    }
+
+    #[test]
+    fn a_claimed_message_identity_is_never_the_subject() {
+        // The owner, 2026-11-10: a Party only from what the sender proved.
+        // The content wrote PARTYX and nothing proved it, so the Message is
+        // for whoever proved the connection.
         let facts = IdentityFacts::evaluate(
             Alignment::None,
             tls(Some(PartyId::new(1))),
             Some(isa06(Some(PartyId::new(2)))),
         );
 
-        // Who the Message is for, and who is accountable for the transmission.
-        assert_eq!(facts.subject().party_id, Some(PartyId::new(2)));
-        assert_eq!(facts.accountable().party_id, Some(PartyId::new(1)));
+        assert_eq!(facts.subject(), &facts.transport);
+        assert_eq!(facts.subject().party_id, Some(PartyId::new(1)));
     }
 
     #[test]

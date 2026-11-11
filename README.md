@@ -21,6 +21,15 @@ per value and read one entry per value, never split, so an issuer's
 distinguished name with its commas stays one value. Every authorize
 technology reads evidence through these two, and nowhere else.
 
+What a gate concluded is `Verified` — proven, vouched, claimed or refused
+— and `Verified::names_a_party` is the one answer to whether an identity
+may name a Party: proven, or vouched for by a party Xmip proved, never a
+claim nothing proved. The authentication gate resolves a Party only where it
+says so, and `IdentityFacts::subject`, who a Message is for, is the message
+identity only where it says so and the transport identity otherwise: the
+one rule, which `authorize/contract` asks (the owner, 2026-11-10; ADR-0019,
+amendment 2026-11-11).
+
 `doc/architecture/runtime-model.md` section 9 (promotion, demotion and the
 content selectors) and `module-model.md` section 2 govern it;
 `architecture.toml` carries the maturity.

@@ -70,6 +70,15 @@ impl Verified {
     pub const fn is_proven(self) -> bool {
         matches!(self, Self::Proven)
     }
+
+    /// Whether this verdict may name a Party: proven, or vouched for by a
+    /// party Xmip proved. A claim nothing proved is a name anyone can write
+    /// and names nobody (the owner, 2026-11-10; ADR-0019, amendment
+    /// 2026-11-11).
+    #[must_use]
+    pub const fn names_a_party(self) -> bool {
+        matches!(self, Self::Proven | Self::Vouched)
+    }
 }
 
 /// The weakest verdict a Receive Location takes on one layer: `proven`
@@ -136,6 +145,15 @@ mod tests {
         }
         assert_eq!(Minimum::default().transport, Required::Proven);
         assert_eq!(Minimum::default().message, Required::Proven);
+    }
+
+    #[test]
+    fn only_a_proven_or_vouched_verdict_names_a_party() {
+        let naming: Vec<Verified> = Verified::ALL
+            .into_iter()
+            .filter(|verified| verified.names_a_party())
+            .collect();
+        assert_eq!(naming, [Verified::Proven, Verified::Vouched]);
     }
 
     #[test]
