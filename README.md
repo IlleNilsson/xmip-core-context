@@ -30,6 +30,14 @@ identity only where it says so and the transport identity otherwise: the
 one rule, which `authorize/contract` asks (the owner, 2026-11-10; ADR-0019,
 amendment 2026-11-11).
 
+The facts' one binary form, what the Ledger keeps beside a Message a paused
+Subscription holds, is here with the type (`facts_record`):
+`IdentityFacts::record` writes it and `IdentityFacts::from_record` reads it
+back, each mechanism the one the reader carries under the name recorded,
+never built from the record. What the bytes hold is a `codec::form::Form`,
+`xmip-core-library-codec`'s one binary form, and a test holds the bytes
+written to the ones the form has always written.
+
 `doc/architecture/runtime-model.md` section 9 (promotion, demotion and the
 content selectors) and `module-model.md` section 2 govern it;
 `architecture.toml` carries the maturity.
