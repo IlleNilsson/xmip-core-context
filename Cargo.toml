@@ -1,8 +1,8 @@
 [package]
 name = "xmip-core-context"
-version = "0.1.0"
-edition = "2024"
-license = "AGPL-3.0-or-later"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 repository = "https://github.com/IlleNilsson/xmip-core-context"
 description = "Typed message context values for Xmip."
 
@@ -17,3 +17,5 @@ codec = { package = "xmip-core-library-codec", git = "https://github.com/IlleNil
 # `Required`, the weakest verdict a Location takes, read from configuration
 # in the words `Verified` writes.
 serde = { version = "1", features = ["derive"] }
+
+[lints]
